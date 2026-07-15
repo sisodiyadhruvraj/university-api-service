@@ -26,11 +26,6 @@ npm run dev
 
 Runs on port 3000. The SQLite file is created automatically the first time it runs, nothing to migrate by hand. Once it's up, Swagger docs are at `/api-docs`.
 
-Or with Docker:
-
-```bash
-docker compose up --build
-```
 
 ## Tests
 
