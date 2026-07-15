@@ -44,18 +44,18 @@ Unit tests cover the validators and services, integration tests hit the real end
 
 ```
 src/
-├── app.js, server.js      express app + entry point
-├── config/                db + swagger setup
-├── controllers/            route handlers
-├── services/               business logic, external API + persistence
-├── routes/                  routes + swagger annotations
-├── middleware/               validation, error handling, rate limiter, logging
-├── utils/                     cache, error classes, logger, async wrapper
-└── db/schema.sql               table definitions
+├── app.js, server.js     
+├── config/               
+├── controllers/           
+├── services/              
+├── routes/                  
+├── middleware/               
+├── utils/                    
+└── db/schema.sql               
 tests/
 ├── unit/
 └── integration/
-postman/                        collection if you want to test manually
+postman/                       
 ```
 
 ## Notes
