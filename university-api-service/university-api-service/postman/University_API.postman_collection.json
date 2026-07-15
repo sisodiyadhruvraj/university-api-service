@@ -1,0 +1,292 @@
+{
+  "info": {
+    "name": "University API Service",
+    "description": "Collection for the University API Service assignment - search universities, manage favourites, and view search history.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "favouriteId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Universities",
+      "item": [
+        {
+          "name": "Search by country",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/universities?country=India",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "universities"],
+              "query": [{ "key": "country", "value": "India" }]
+            }
+          }
+        },
+        {
+          "name": "Search by country and name",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/universities?country=India&name=engineering",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "universities"],
+              "query": [
+                { "key": "country", "value": "India" },
+                { "key": "name", "value": "engineering" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Missing country (expect 400)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/universities",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "universities"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid country (expect empty array)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/universities?country=Atlantis",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "universities"],
+              "query": [{ "key": "country", "value": "Atlantis" }]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Body is an empty array', function () { pm.expect(pm.response.json()).to.eql([]); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get university by name",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/universities/Massachusetts Institute of Technology",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "universities", "Massachusetts Institute of Technology"]
+            }
+          }
+        },
+        {
+          "name": "Get university by name - not found (expect 404)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/universities/Not A Real University",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "universities", "Not A Real University"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Favourites",
+      "item": [
+        {
+          "name": "Create favourite",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/favourites",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favourites"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Indian Institute of Technology Delhi\",\n  \"country\": \"India\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('favouriteId', json.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create duplicate favourite (expect 409)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/favourites",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favourites"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Indian Institute of Technology Delhi\",\n  \"country\": \"India\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 409', function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get all favourites",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/favourites?page=1&limit=10&sortBy=created_at&order=desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favourites"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "sortBy", "value": "created_at" },
+                { "key": "order", "value": "desc" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete favourite",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/favourites/{{favouriteId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favourites", "{{favouriteId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete favourite - invalid id (expect 404)",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/favourites/999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favourites", "999999"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Search History (bonus)",
+      "item": [
+        {
+          "name": "Get search history",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/search-history?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search-history"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Misc",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+          }
+        },
+        {
+          "name": "Invalid endpoint (expect 404)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/not-a-real-route",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "not-a-real-route"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

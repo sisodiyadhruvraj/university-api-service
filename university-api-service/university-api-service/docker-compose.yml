@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  university-api:
+    build: .
+    container_name: university-api-service
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - DB_PATH=/usr/src/app/data/university.db
+      - UNIVERSITIES_API_URL=http://universities.hipolabs.com
+      - EXTERNAL_API_TIMEOUT_MS=5000
+      - CACHE_TTL_MS=300000
+      - RATE_LIMIT_WINDOW_MS=60000
+      - RATE_LIMIT_MAX_REQUESTS=100
+    volumes:
+      - university-data:/usr/src/app/data
+      - university-logs:/usr/src/app/logs
+    restart: unless-stopped
+
+volumes:
+  university-data:
+  university-logs:
